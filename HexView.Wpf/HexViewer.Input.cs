@@ -34,8 +34,8 @@ public partial class HexViewer
         }
 
         long streamLength = DataSource.BaseStream.Length;
-        SelectionStart = offset.Clamp(0, streamLength);
-        SelectionEnd = (offset + length).Clamp(0, streamLength);
+        SelectionStart = Math.Clamp(offset, 0, streamLength);
+        SelectionEnd = Math.Clamp(offset + length, 0, streamLength);
     }
 
     /// <summary>
@@ -470,7 +470,7 @@ public partial class HexViewer
                     Point addressVerticalLinePoint1 = CalculateAddressVerticalLinePoint1();
 
                     // Clamp the Y coordinate to within the address region
-                    position.Y = position.Y.Clamp(addressVerticalLinePoint0.Y, addressVerticalLinePoint1.Y);
+                    position.Y = Math.Clamp(position.Y, addressVerticalLinePoint0.Y, addressVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
                     position.Y /= cachedFormattedChar.Height;
@@ -494,7 +494,7 @@ public partial class HexViewer
                     Point dataVerticalLinePoint1 = CalculateDataVerticalLinePoint1();
 
                     // Clamp the X coordinate to within the data region
-                    position.X = position.X.Clamp(addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), dataVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
+                    position.X = Math.Clamp(position.X, addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), dataVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
 
                     // Normalize with respect to the data region
                     position.X -= addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
@@ -509,7 +509,7 @@ public partial class HexViewer
                     }
 
                     // Clamp the Y coordinate to within the data region
-                    position.Y = position.Y.Clamp(dataVerticalLinePoint0.Y, dataVerticalLinePoint1.Y);
+                    position.Y = Math.Clamp(position.Y, dataVerticalLinePoint0.Y, dataVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
                     position.Y /= cachedFormattedChar.Height;
@@ -533,7 +533,7 @@ public partial class HexViewer
                     Point textVerticalLinePoint1 = CalculateTextVerticalLinePoint1();
 
                     // Clamp the X coordinate to within the text region
-                    position.X = position.X.Clamp(dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), textVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
+                    position.X = Math.Clamp(position.X, dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), textVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
 
                     // Normalize with respect to the text region
                     position.X -= dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
@@ -549,7 +549,7 @@ public partial class HexViewer
                     }
 
                     // Clamp the Y coordinate to within the text region
-                    position.Y = position.Y.Clamp(textVerticalLinePoint0.Y, textVerticalLinePoint1.Y);
+                    position.Y = Math.Clamp(position.Y, textVerticalLinePoint0.Y, textVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
                     position.Y /= cachedFormattedChar.Height;

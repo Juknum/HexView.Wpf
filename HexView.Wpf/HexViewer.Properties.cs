@@ -509,7 +509,7 @@ public partial class HexViewer
             selectionStart -= selectionStart % hexViewer.BytesPerColumn;
 
             // Selection start cannot be at the end of the stream so adjust by data width number of bytes
-            value = selectionStart.Clamp(0, (hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn) - hexViewer.BytesPerColumn);
+            value = Math.Clamp(selectionStart, 0, (hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn) - hexViewer.BytesPerColumn);
         }
         else
         {
@@ -531,7 +531,7 @@ public partial class HexViewer
             selectionEnd -= selectionEnd % hexViewer.BytesPerColumn;
 
             // Unlike selection start the selection end can be at the end of the stream
-            value = selectionEnd.Clamp(0, hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn);
+            value = Math.Clamp(selectionEnd, 0, hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn);
         }
         else
         {
@@ -561,7 +561,7 @@ public partial class HexViewer
         {
             long offset = (long)value;
 
-            value = offset.Clamp(0, hexViewer.DataSource.BaseStream.Length);
+            value = Math.Clamp(offset, 0, hexViewer.DataSource.BaseStream.Length);
         }
         else
         {
