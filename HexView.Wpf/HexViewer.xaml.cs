@@ -2426,12 +2426,15 @@ namespace HexView.Wpf
             MaxVisibleColumns = maxVisibleColumns;
 
             // Maximum visible rows has now changed and so we must update the maximum amount we should scroll by
-            verticalScrollBar.LargeChange = maxVisibleRows;
+            if (verticalScrollBar != null)
+            {
+                verticalScrollBar.LargeChange = maxVisibleRows;
+            }
         }
 
         private void UpdateScrollBar()
         {
-            if ((ShowAddress || ShowData || ShowText) && DataSource != null && Columns > 0 && MaxVisibleRows > 0)
+            if (verticalScrollBar != null && (ShowAddress || ShowData || ShowText) && DataSource != null && Columns > 0 && MaxVisibleRows > 0)
             {
                 long q = DataSource.BaseStream.Length / BytesPerRow;
                 long r = DataSource.BaseStream.Length % BytesPerRow;
