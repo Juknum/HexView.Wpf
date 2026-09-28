@@ -827,6 +827,13 @@ namespace HexView.Wpf
         }
 
         /// <inheritdoc/>
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+            Focus();
+        }
+
+        /// <inheritdoc/>
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
             base.OnMouseDoubleClick(e);
