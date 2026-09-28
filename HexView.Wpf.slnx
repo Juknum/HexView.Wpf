@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HexView.Wpf/HexView.Wpf.csproj" />
+  <Project Path="HexView.Wpf.Demo/HexView.Wpf.Demo.csproj" />
+</Solution>
