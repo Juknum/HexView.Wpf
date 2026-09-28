@@ -1,28 +1,29 @@
 namespace Juknum.HexView;
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.CompilerServices;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using CommunityToolkit.Mvvm.Input;
 using Juknum.HexView.Enums;
 using DataFormat = Juknum.HexView.Enums.DataFormat;
 
 /// <summary>
 /// Represents a control designed to display a classical hexadecimal viewer.
 /// </summary>
-public partial class HexViewer : UserControl, INotifyPropertyChanged
+[TemplatePart(Name = CanvasName, Type = typeof(HexRenderSurface))]
+[TemplatePart(Name = VerticalScrollBarName, Type = typeof(ScrollBar))]
+public partial class HexViewer : Control
 {
     private const string CanvasName = "PART_Canvas";
     private const string VerticalScrollBarName = "PART_VerticalScrollBar";
 
     private Typeface cachedTypeface;
+    private GlyphTypeface cachedGlyphTypeface;
     private FormattedText cachedFormattedChar;
     private FontFamily cachedFontFamily;
     private FontStyle cachedFontStyle;
@@ -30,28 +31,109 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
     private FontStretch cachedFontStretch;
     private double cachedFontSize;
     private Brush cachedForeground;
+    private double cachedCharWidth;
+    private double cachedCharHeight;
+    private double cachedBaseline;
 
-    private Canvas canvas;
+    private HexRenderSurface canvas;
     private ScrollBar verticalScrollBar;
+
+    static HexViewer()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(
+            typeof(HexViewer),
+            new FrameworkPropertyMetadata(typeof(HexViewer)));
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HexViewer"/> class.
     /// </summary>
     public HexViewer()
     {
-        InitializeComponent();
+        CommandBindings.Add(new CommandBinding(CopyCommand, CopyExecuted, CopyCanExecute));
+        CommandBindings.Add(new CommandBinding(ToggleTextCommand, ToggleTextExecuted));
+        CommandBindings.Add(new CommandBinding(ToggleSignednessCommand, ToggleSignednessExecuted, ToggleSignednessCanExecute));
+        CommandBindings.Add(new CommandBinding(ToggleEndiannessCommand, ToggleEndiannessExecuted));
+        CommandBindings.Add(new CommandBinding(SetNoDataCommand, SetNoDataExecuted));
+        CommandBindings.Add(new CommandBinding(SetIntegerFormatCommand, SetIntegerFormatExecuted));
+        CommandBindings.Add(new CommandBinding(SetFloatingPointFormatCommand, SetFloatingPointFormatExecuted));
+        CommandBindings.Add(new CommandBinding(SetDataFormatCommand, SetDataFormatExecuted));
 
-        canvas = PART_Canvas;
-        verticalScrollBar = PART_VerticalScrollBar;
+        UpdateHeaders();
+    }
+
+    /// <summary>
+    /// Gets the <see cref="ApplicationCommands.Copy"/> routed command.
+    /// </summary>
+    public static RoutedUICommand CopyCommand => ApplicationCommands.Copy;
+
+    /// <summary>
+    /// Gets the toggle text routed command.
+    /// </summary>
+    public static RoutedUICommand ToggleTextCommand { get; } = new(nameof(ToggleText), nameof(ToggleTextCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the toggle signedness routed command.
+    /// </summary>
+    public static RoutedUICommand ToggleSignednessCommand { get; } = new(nameof(ToggleSignedness), nameof(ToggleSignednessCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the toggle endianness routed command.
+    /// </summary>
+    public static RoutedUICommand ToggleEndiannessCommand { get; } = new(nameof(ToggleEndianness), nameof(ToggleEndiannessCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the set no data routed command.
+    /// </summary>
+    public static RoutedUICommand SetNoDataCommand { get; } = new(nameof(SetNoData), nameof(SetNoDataCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the set integer format routed command.
+    /// </summary>
+    public static RoutedUICommand SetIntegerFormatCommand { get; } = new(nameof(SetIntegerFormat), nameof(SetIntegerFormatCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the set floating point format routed command.
+    /// </summary>
+    public static RoutedUICommand SetFloatingPointFormatCommand { get; } = new(nameof(SetFloatingPointFormat), nameof(SetFloatingPointFormatCommand), typeof(HexViewer));
+
+    /// <summary>
+    /// Gets the set data format routed command.
+    /// </summary>
+    public static RoutedUICommand SetDataFormatCommand { get; } = new(nameof(SetDataFormat), nameof(SetDataFormatCommand), typeof(HexViewer));
+
+    private enum SelectionArea
+    {
+        None,
+        Address,
+        Data,
+        Text,
+    }
+
+    /// <inheritdoc/>
+    public override void OnApplyTemplate()
+    {
+        base.OnApplyTemplate();
 
         if (canvas != null)
         {
-            canvas.SizeChanged += (s, e) => InvalidateVisual();
+            canvas.Owner = null;
+            canvas.SizeChanged -= OnCanvasSizeChanged;
+        }
 
-            CommandBindings.Add(new CommandBinding(
-                CopyCommand,
-                CopyExecuted,
-                CopyCanExecute));
+        if (verticalScrollBar != null)
+        {
+            verticalScrollBar.Scroll -= OnVerticalScrollBarScroll;
+            verticalScrollBar.ValueChanged -= OnVerticalScrollBarValueChanged;
+        }
+
+        canvas = GetTemplateChild(CanvasName) as HexRenderSurface;
+        verticalScrollBar = GetTemplateChild(VerticalScrollBarName) as ScrollBar;
+
+        if (canvas != null)
+        {
+            canvas.Owner = this;
+            canvas.SizeChanged += OnCanvasSizeChanged;
         }
 
         if (verticalScrollBar != null)
@@ -64,32 +146,21 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
             verticalScrollBar.LargeChange = MaxVisibleRows;
         }
 
-        Loaded += (s, e) =>
-        {
-            global::Wpf.Ui.Appearance.ApplicationThemeManager.Changed += OnApplicationThemeChanged;
-            InvalidateVisual();
-        };
+        UpdateState();
+    }
 
-        Unloaded += (s, e) =>
-        {
-            global::Wpf.Ui.Appearance.ApplicationThemeManager.Changed -= OnApplicationThemeChanged;
-        };
+    private void OnCanvasSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        InvalidateVisual();
     }
 
     /// <summary>
-    /// Gets the <see cref="ApplicationCommands.Copy"/> routed command.
+    /// Re-renders the control content.
     /// </summary>
-    public static RoutedUICommand CopyCommand => ApplicationCommands.Copy;
-
-    /// <inheritdoc/>
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    private enum SelectionArea
+    public new void InvalidateVisual()
     {
-        None,
-        Address,
-        Data,
-        Text,
+        base.InvalidateVisual();
+        canvas?.InvalidateVisual();
     }
 
     /// <summary>
@@ -97,7 +168,7 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
     /// </summary>
     public void Copy()
     {
-        if (IsSelectionActive)
+        if (IsSelectionActive && DataSource != null)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -118,7 +189,6 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
         }
     }
 
-    [RelayCommand]
     private void ToggleText()
     {
         ShowText = !ShowText;
@@ -128,25 +198,21 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanToggleSignedness))]
     private void ToggleSignedness()
     {
         DataSignedness = DataSignedness == DataSignedness.Signed ? DataSignedness.Unsigned : DataSignedness.Signed;
     }
 
-    [RelayCommand]
     private void ToggleEndianness()
     {
         Endianness = Endianness == Endianness.BigEndian ? Endianness.LittleEndian : Endianness.BigEndian;
     }
 
-    [RelayCommand]
     private void SetNoData()
     {
         ShowData = false;
     }
 
-    [RelayCommand]
     private void SetIntegerFormat(object parameter)
     {
         if (parameter != null && int.TryParse(parameter.ToString(), out int width))
@@ -157,7 +223,6 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
         }
     }
 
-    [RelayCommand]
     private void SetFloatingPointFormat(object parameter)
     {
         if (parameter != null && int.TryParse(parameter.ToString(), out int width))
@@ -168,7 +233,6 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
         }
     }
 
-    [RelayCommand]
     private void SetDataFormat(object parameter)
     {
         if (parameter is DataFormat format)
@@ -184,7 +248,6 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
     private void EnsureFontCache()
     {
         if (cachedTypeface == null ||
-            cachedFormattedChar == null ||
             !Equals(cachedFontFamily, FontFamily) ||
             cachedFontStyle != FontStyle ||
             cachedFontWeight != FontWeight ||
@@ -200,20 +263,35 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
             cachedForeground = Foreground;
 
             cachedTypeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
-            cachedFormattedChar = new FormattedText(
-                "X",
-                CultureInfo.CurrentUICulture,
-                FlowDirection.LeftToRight,
-                cachedTypeface,
-                FontSize,
-                Foreground ?? Brushes.Black,
-                1.0);
-        }
-    }
+            if (cachedTypeface.TryGetGlyphTypeface(out cachedGlyphTypeface))
+            {
+                if (cachedGlyphTypeface.CharacterToGlyphMap.TryGetValue('X', out ushort glyphIndex))
+                {
+                    cachedCharWidth = cachedGlyphTypeface.AdvanceWidths[glyphIndex] * FontSize;
+                }
+                else
+                {
+                    cachedCharWidth = FontSize * 0.6;
+                }
 
-    private void OnApplicationThemeChanged(global::Wpf.Ui.Appearance.ApplicationTheme currentApplicationTheme, Color systemAccent)
-    {
-        Dispatcher.InvokeAsync(InvalidateVisual);
+                cachedCharHeight = cachedGlyphTypeface.Height * FontSize;
+                cachedBaseline = cachedGlyphTypeface.Baseline * FontSize;
+            }
+            else
+            {
+                cachedFormattedChar = new FormattedText(
+                    "X",
+                    CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight,
+                    cachedTypeface,
+                    FontSize,
+                    Foreground ?? Brushes.Black,
+                    1.0);
+                cachedCharWidth = cachedFormattedChar.Width;
+                cachedCharHeight = cachedFormattedChar.Height;
+                cachedBaseline = cachedFormattedChar.Baseline;
+            }
+        }
     }
 
     private Brush GetEffectiveAddressBrush() => AddressBrush ?? (TryFindResource("AccentTextFillColorPrimaryBrush") as Brush) ?? (TryFindResource("TextFillColorSecondaryBrush") as Brush) ?? Foreground;
@@ -234,25 +312,34 @@ public partial class HexViewer : UserControl, INotifyPropertyChanged
         e.CanExecute = IsSelectionActive;
     }
 
-    private void OnPropertyChanged([CallerMemberName] string name = null)
+    private void ToggleTextExecuted(object sender, ExecutedRoutedEventArgs e) => ToggleText();
+
+    private void ToggleSignednessExecuted(object sender, ExecutedRoutedEventArgs e) => ToggleSignedness();
+
+    private void ToggleSignednessCanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = CanToggleSignedness;
+
+    private void ToggleEndiannessExecuted(object sender, ExecutedRoutedEventArgs e) => ToggleEndianness();
+
+    private void SetNoDataExecuted(object sender, ExecutedRoutedEventArgs e) => SetNoData();
+
+    private void SetIntegerFormatExecuted(object sender, ExecutedRoutedEventArgs e) => SetIntegerFormat(e.Parameter);
+
+    private void SetFloatingPointFormatExecuted(object sender, ExecutedRoutedEventArgs e) => SetFloatingPointFormat(e.Parameter);
+
+    private void SetDataFormatExecuted(object sender, ExecutedRoutedEventArgs e) => SetDataFormat(e.Parameter);
+}
+
+/// <summary>
+/// Internal render surface for the <see cref="HexViewer"/> control that executes direct OnRender painting.
+/// </summary>
+public sealed class HexRenderSurface : FrameworkElement
+{
+    internal HexViewer Owner { get; set; }
+
+    /// <inheritdoc/>
+    protected override void OnRender(DrawingContext drawingContext)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    private class CanvasVisualHost : UIElement
-    {
-        /// <summary>
-        /// Gets or sets the Visual.
-        /// </summary>
-        public Visual Visual { get; set; }
-
-        /// <inheritdoc/>
-        protected override int VisualChildrenCount => Visual == null ? 0 : 1;
-
-        /// <inheritdoc/>
-        protected override Visual GetVisualChild(int index)
-        {
-            return Visual;
-        }
+        base.OnRender(drawingContext);
+        Owner?.RenderContent(drawingContext);
     }
 }

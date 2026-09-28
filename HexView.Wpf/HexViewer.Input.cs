@@ -473,7 +473,7 @@ public partial class HexViewer
                     position.Y = Math.Clamp(position.Y, addressVerticalLinePoint0.Y, addressVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
-                    position.Y /= cachedFormattedChar.Height;
+                    position.Y /= CharHeight;
 
                     if (position.Y >= MaxVisibleRows)
                     {
@@ -494,13 +494,13 @@ public partial class HexViewer
                     Point dataVerticalLinePoint1 = CalculateDataVerticalLinePoint1();
 
                     // Clamp the X coordinate to within the data region
-                    position.X = Math.Clamp(position.X, addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), dataVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
+                    position.X = Math.Clamp(position.X, addressVerticalLinePoint0.X + (CharsBetweenSections * CharWidth), dataVerticalLinePoint0.X - (CharsBetweenSections * CharWidth));
 
                     // Normalize with respect to the data region
-                    position.X -= addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
+                    position.X -= addressVerticalLinePoint0.X + (CharsBetweenSections * CharWidth);
 
                     // Convert the X coordinate to the column number
-                    position.X /= (CalculateDataColumnCharWidth() + CharsBetweenDataColumns) * cachedFormattedChar.Width;
+                    position.X /= (CalculateDataColumnCharWidth() + CharsBetweenDataColumns) * CharWidth;
 
                     if (position.X >= Columns)
                     {
@@ -512,7 +512,7 @@ public partial class HexViewer
                     position.Y = Math.Clamp(position.Y, dataVerticalLinePoint0.Y, dataVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
-                    position.Y /= cachedFormattedChar.Height;
+                    position.Y /= CharHeight;
 
                     if (position.Y >= MaxVisibleRows)
                     {
@@ -533,13 +533,13 @@ public partial class HexViewer
                     Point textVerticalLinePoint1 = CalculateTextVerticalLinePoint1();
 
                     // Clamp the X coordinate to within the text region
-                    position.X = Math.Clamp(position.X, dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width), textVerticalLinePoint0.X - (CharsBetweenSections * cachedFormattedChar.Width));
+                    position.X = Math.Clamp(position.X, dataVerticalLinePoint0.X + (CharsBetweenSections * CharWidth), textVerticalLinePoint0.X - (CharsBetweenSections * CharWidth));
 
                     // Normalize with respect to the text region
-                    position.X -= dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
+                    position.X -= dataVerticalLinePoint0.X + (CharsBetweenSections * CharWidth);
 
                     // Convert the X coordinate to the column number
-                    position.X /= CalculateTextColumnCharWidth() * cachedFormattedChar.Width;
+                    position.X /= CalculateTextColumnCharWidth() * CharWidth;
 
                     if (position.X >= Columns)
                     {
@@ -552,7 +552,7 @@ public partial class HexViewer
                     position.Y = Math.Clamp(position.Y, textVerticalLinePoint0.Y, textVerticalLinePoint1.Y);
 
                     // Convert the Y coordinate to the row number
-                    position.Y /= cachedFormattedChar.Height;
+                    position.Y /= CharHeight;
 
                     if (position.Y >= MaxVisibleRows)
                     {
@@ -584,23 +584,23 @@ public partial class HexViewer
                 {
                     Point addressVerticalLinePoint0 = CalculateAddressVerticalLinePoint0();
 
-                    position.X = addressVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
+                    position.X = addressVerticalLinePoint0.X + (CharsBetweenSections * CharWidth);
                     position.Y = addressVerticalLinePoint0.Y;
 
                     // Normalize requested offset to a zero based column
                     long normalizedColumn = (offset - Offset) / BytesPerColumn;
 
-                    position.X += (((normalizedColumn % Columns) + Columns) % Columns) * (CalculateDataColumnCharWidth() + CharsBetweenDataColumns) * cachedFormattedChar.Width;
+                    position.X += (((normalizedColumn % Columns) + Columns) % Columns) * (CalculateDataColumnCharWidth() + CharsBetweenDataColumns) * CharWidth;
 
                     if (normalizedColumn < 0)
                     {
                         // Negative normalized offset means the Y position is above the current offset. Because division
                         // rounds toward zero we need to compensate here.
-                        position.Y += (((normalizedColumn + 1) / Columns) - 1) * cachedFormattedChar.Height;
+                        position.Y += (((normalizedColumn + 1) / Columns) - 1) * CharHeight;
                     }
                     else
                     {
-                        position.Y += normalizedColumn / Columns * cachedFormattedChar.Height;
+                        position.Y += normalizedColumn / Columns * CharHeight;
                     }
                 }
 
@@ -610,23 +610,23 @@ public partial class HexViewer
                 {
                     Point dataVerticalLinePoint0 = CalculateDataVerticalLinePoint0();
 
-                    position.X = dataVerticalLinePoint0.X + (CharsBetweenSections * cachedFormattedChar.Width);
+                    position.X = dataVerticalLinePoint0.X + (CharsBetweenSections * CharWidth);
                     position.Y = dataVerticalLinePoint0.Y;
 
                     // Normalize requested offset to a zero based column
                     long normalizedColumn = (offset - Offset) / BytesPerColumn;
 
-                    position.X += (((normalizedColumn % Columns) + Columns) % Columns) * CalculateTextColumnCharWidth() * cachedFormattedChar.Width;
+                    position.X += (((normalizedColumn % Columns) + Columns) % Columns) * CalculateTextColumnCharWidth() * CharWidth;
 
                     if (normalizedColumn < 0)
                     {
                         // Negative normalized offset means the Y position is above the current offset. Because division
                         // rounds toward zero we need to compensate here.
-                        position.Y += (((normalizedColumn + 1) / Columns) - 1) * cachedFormattedChar.Height;
+                        position.Y += (((normalizedColumn + 1) / Columns) - 1) * CharHeight;
                     }
                     else
                     {
-                        position.Y += normalizedColumn / Columns * cachedFormattedChar.Height;
+                        position.Y += normalizedColumn / Columns * CharHeight;
                     }
                 }
 

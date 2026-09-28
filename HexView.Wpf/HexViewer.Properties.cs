@@ -1,7 +1,6 @@
 namespace Juknum.HexView;
 
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -186,6 +185,42 @@ public partial class HexViewer
     public static readonly DependencyProperty TextFormatProperty =
         DependencyProperty.Register(nameof(TextFormat), typeof(TextFormat), typeof(HexViewer),
             new FrameworkPropertyMetadata(TextFormat.Ascii, OnPropertyChangedInvalidateVisual));
+
+    /// <summary>
+    /// Defines the header text for toggling text visibility.
+    /// </summary>
+    public static readonly DependencyPropertyKey ToggleTextHeaderPropertyKey =
+        DependencyProperty.RegisterReadOnly(nameof(ToggleTextHeader), typeof(string), typeof(HexViewer),
+            new FrameworkPropertyMetadata("Hide Text"));
+
+    /// <summary>
+    /// Defines the header text for toggling text visibility.
+    /// </summary>
+    public static readonly DependencyProperty ToggleTextHeaderProperty = ToggleTextHeaderPropertyKey.DependencyProperty;
+
+    /// <summary>
+    /// Defines the header text for toggling signedness.
+    /// </summary>
+    public static readonly DependencyPropertyKey ToggleSignednessHeaderPropertyKey =
+        DependencyProperty.RegisterReadOnly(nameof(ToggleSignednessHeader), typeof(string), typeof(HexViewer),
+            new FrameworkPropertyMetadata("Unsigned"));
+
+    /// <summary>
+    /// Defines the header text for toggling signedness.
+    /// </summary>
+    public static readonly DependencyProperty ToggleSignednessHeaderProperty = ToggleSignednessHeaderPropertyKey.DependencyProperty;
+
+    /// <summary>
+    /// Defines the header text for toggling endianness.
+    /// </summary>
+    public static readonly DependencyPropertyKey ToggleEndiannessHeaderPropertyKey =
+        DependencyProperty.RegisterReadOnly(nameof(ToggleEndiannessHeader), typeof(string), typeof(HexViewer),
+            new FrameworkPropertyMetadata("Little-endian"));
+
+    /// <summary>
+    /// Defines the header text for toggling endianness.
+    /// </summary>
+    public static readonly DependencyProperty ToggleEndiannessHeaderProperty = ToggleEndiannessHeaderPropertyKey.DependencyProperty;
 
     /// <summary>
     /// Gets or sets the address at which the data in the <see cref="DataSource"/> begins.
@@ -408,34 +443,48 @@ public partial class HexViewer
     /// <summary>
     /// Gets the header text for the toggle text command.
     /// </summary>
-    public string ToggleTextHeader => ShowText ? "Hide Text" : "Show Text";
+    public string ToggleTextHeader
+    {
+        get => (string)GetValue(ToggleTextHeaderProperty);
+        private set => SetValue(ToggleTextHeaderPropertyKey, value);
+    }
 
     /// <summary>
     /// Gets the header text for the toggle signedness command.
     /// </summary>
-    public string ToggleSignednessHeader => DataSignedness == DataSignedness.Signed ? "Unsigned" : "Signed";
+    public string ToggleSignednessHeader
+    {
+        get => (string)GetValue(ToggleSignednessHeaderProperty);
+        private set => SetValue(ToggleSignednessHeaderPropertyKey, value);
+    }
 
     /// <summary>
     /// Gets the header text for the toggle endianness command.
     /// </summary>
-    public string ToggleEndiannessHeader => Endianness == Endianness.BigEndian ? "Little-endian" : "Big-endian";
+    public string ToggleEndiannessHeader
+    {
+        get => (string)GetValue(ToggleEndiannessHeaderProperty);
+        private set => SetValue(ToggleEndiannessHeaderPropertyKey, value);
+    }
 
     /// <summary>
     /// Gets a value indicating whether the signedness toggle command can execute.
     /// </summary>
     public bool CanToggleSignedness => ShowData && DataType == DataType.Integer && DataFormat == DataFormat.Decimal;
 
+    private void UpdateHeaders()
+    {
+        ToggleTextHeader = ShowText ? "Hide Text" : "Show Text";
+        ToggleSignednessHeader = DataSignedness == DataSignedness.Signed ? "Unsigned" : "Signed";
+        ToggleEndiannessHeader = Endianness == Endianness.BigEndian ? "Little-endian" : "Big-endian";
+    }
+
     private static void OnPropertyChangedInvalidateVisual(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var hexViewer = (HexViewer)d;
 
+        hexViewer.UpdateHeaders();
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(e.Property.Name);
-        hexViewer.OnPropertyChanged(nameof(ToggleTextHeader));
-        hexViewer.OnPropertyChanged(nameof(ToggleSignednessHeader));
-        hexViewer.OnPropertyChanged(nameof(ToggleEndiannessHeader));
-        hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
-        hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
     }
 
     private static void OnSelectionEndChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -443,11 +492,6 @@ public partial class HexViewer
         var hexViewer = (HexViewer)d;
 
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(nameof(SelectionEnd));
-        hexViewer.OnPropertyChanged(nameof(SelectionLength));
-        hexViewer.OnPropertyChanged(nameof(SelectedOffset));
-        hexViewer.OnPropertyChanged(nameof(SelectedAddress));
-        hexViewer.OnPropertyChanged(nameof(IsSelectionActive));
     }
 
     private static void OnSelectionStartChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -455,11 +499,6 @@ public partial class HexViewer
         var hexViewer = (HexViewer)d;
 
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(nameof(SelectionStart));
-        hexViewer.OnPropertyChanged(nameof(SelectionLength));
-        hexViewer.OnPropertyChanged(nameof(SelectedOffset));
-        hexViewer.OnPropertyChanged(nameof(SelectedAddress));
-        hexViewer.OnPropertyChanged(nameof(IsSelectionActive));
     }
 
     private static object CoerceColumns(DependencyObject d, object value)
@@ -568,8 +607,6 @@ public partial class HexViewer
         hexViewer.SelectionEnd = 0;
 
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(nameof(Address));
-        hexViewer.OnPropertyChanged(nameof(SelectedAddress));
     }
 
     private static void OnDataTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -577,11 +614,8 @@ public partial class HexViewer
         var hexViewer = (HexViewer)d;
 
         hexViewer.CoerceValue(DataWidthProperty);
-
+        hexViewer.UpdateHeaders();
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(nameof(DataType));
-        hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
-        hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
     }
 
     private static void OnDataSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -602,9 +636,7 @@ public partial class HexViewer
         hexViewer.SelectionStart = 0;
         hexViewer.SelectionEnd = 0;
 
+        hexViewer.UpdateHeaders();
         hexViewer.InvalidateVisual();
-        hexViewer.OnPropertyChanged(nameof(DataWidth));
-        hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
-        hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
     }
 }

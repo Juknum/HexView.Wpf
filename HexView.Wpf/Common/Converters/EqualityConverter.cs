@@ -35,12 +35,7 @@ internal class EqualityConverter : IValueConverter
     /// </returns>
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (targetType != typeof(bool) && targetType != typeof(Visibility))
-        {
-            throw new ArgumentException("Argument targetType must be of type 'Boolean' or 'Visibility'", nameof(targetType));
-        }
-
-        bool equals = value != null && value.Equals(parameter);
+        bool equals = Equals(value, parameter);
         if (targetType == typeof(Visibility))
         {
             return equals ? Visibility.Visible : Visibility.Collapsed;
