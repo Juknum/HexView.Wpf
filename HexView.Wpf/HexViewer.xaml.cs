@@ -202,7 +202,44 @@ namespace HexView.Wpf
         private const int CharsBetweenDataColumns = 1;
         private const int ScrollWheelScrollRows = 3;
 
+        private Typeface cachedTypeface;
         private FormattedText cachedFormattedChar;
+        private FontFamily cachedFontFamily;
+        private FontStyle cachedFontStyle;
+        private FontWeight cachedFontWeight;
+        private FontStretch cachedFontStretch;
+        private double cachedFontSize;
+        private Brush cachedForeground;
+
+        private void EnsureFontCache()
+        {
+            if (cachedTypeface == null ||
+                cachedFormattedChar == null ||
+                !Equals(cachedFontFamily, FontFamily) ||
+                cachedFontStyle != FontStyle ||
+                cachedFontWeight != FontWeight ||
+                cachedFontStretch != FontStretch ||
+                cachedFontSize != FontSize ||
+                !Equals(cachedForeground, Foreground))
+            {
+                cachedFontFamily = FontFamily;
+                cachedFontStyle = FontStyle;
+                cachedFontWeight = FontWeight;
+                cachedFontStretch = FontStretch;
+                cachedFontSize = FontSize;
+                cachedForeground = Foreground;
+
+                cachedTypeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                cachedFormattedChar = new FormattedText(
+                    "X",
+                    CultureInfo.CurrentUICulture,
+                    FlowDirection.LeftToRight,
+                    cachedTypeface,
+                    FontSize,
+                    Foreground ?? Brushes.Black,
+                    1.0);
+            }
+        }
 
         private Canvas canvas;
 
@@ -1115,7 +1152,7 @@ namespace HexView.Wpf
 
                     Point origin = default;
 
-                    Typeface cachedTypeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                    EnsureFontCache();
 
                     for (var row = 0; row < MaxVisibleRows; ++row)
                     {
@@ -2385,8 +2422,7 @@ namespace HexView.Wpf
 
             if ((ShowAddress || ShowData || ShowText) && canvas != null)
             {
-                // TODO: We should not be updating this every time. Cache it once if the font on the control changes. Same with typeface and use it throughout.
-                cachedFormattedChar = new FormattedText("X", CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Foreground, 1.0);
+                EnsureFontCache();
 
                 maxVisibleRows = Math.Max(0, (int)(canvas.ActualHeight / cachedFormattedChar.Height));
 
