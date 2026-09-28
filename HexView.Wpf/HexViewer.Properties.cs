@@ -340,20 +340,7 @@ public partial class HexViewer
     /// <summary>
     /// Gets the number of bytes selected.
     /// </summary>
-    public long SelectionLength
-    {
-        get
-        {
-            if (SelectionStart <= SelectionEnd)
-            {
-                return SelectionEnd - SelectionStart;
-            }
-            else
-            {
-                return SelectionStart - SelectionEnd + BytesPerColumn;
-            }
-        }
-    }
+    public long SelectionLength => Math.Abs(SelectionEnd - SelectionStart);
 
     /// <summary>
     /// Gets the offset from <see cref="DataSource"/> of where the user selection has started.
@@ -510,8 +497,7 @@ public partial class HexViewer
             // Selection offset cannot start in the middle of the data width
             selectionStart -= selectionStart % hexViewer.BytesPerColumn;
 
-            // Selection start cannot be at the end of the stream so adjust by data width number of bytes
-            value = Math.Clamp(selectionStart, 0, (hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn) - hexViewer.BytesPerColumn);
+            value = Math.Clamp(selectionStart, 0, hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn);
         }
         else
         {
@@ -532,7 +518,6 @@ public partial class HexViewer
             // Selection offset cannot start in the middle of the data width
             selectionEnd -= selectionEnd % hexViewer.BytesPerColumn;
 
-            // Unlike selection start the selection end can be at the end of the stream
             value = Math.Clamp(selectionEnd, 0, hexViewer.DataSource.BaseStream.Length / hexViewer.BytesPerColumn * hexViewer.BytesPerColumn);
         }
         else

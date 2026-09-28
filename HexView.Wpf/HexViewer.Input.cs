@@ -15,6 +15,7 @@ public partial class HexViewer
 
     private SelectionArea highlightBegin = SelectionArea.None;
     private SelectionArea highlightState = SelectionArea.None;
+    private long selectionAnchor;
 
     private double lastVerticalScrollValue = 0;
 
@@ -109,11 +110,6 @@ public partial class HexViewer
 
                 case Key.C:
                     {
-                        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-                        {
-                            e.Handled = true;
-                        }
-
                         break;
                     }
 
@@ -338,8 +334,9 @@ public partial class HexViewer
                 highlightBegin = SelectionArea.Address;
                 highlightState = SelectionArea.Address;
 
-                SelectionStart = ConvertPositionToOffset(position);
-                SelectionEnd = SelectionStart + BytesPerRow;
+                selectionAnchor = ConvertPositionToOffset(position);
+                SelectionStart = selectionAnchor;
+                SelectionEnd = selectionAnchor + BytesPerRow;
             }
         }
     }
@@ -375,9 +372,9 @@ public partial class HexViewer
 
             if (highlightState != SelectionArea.None)
             {
-                SelectionStart = ConvertPositionToOffset(position);
-
-                SelectionEnd = SelectionStart + BytesPerColumn;
+                selectionAnchor = ConvertPositionToOffset(position);
+                SelectionStart = selectionAnchor;
+                SelectionEnd = selectionAnchor + BytesPerColumn;
             }
         }
     }
@@ -406,12 +403,14 @@ public partial class HexViewer
 
                     var currentMouseOverOffset = ConvertPositionToOffset(position);
 
-                    if (currentMouseOverOffset >= SelectionStart)
+                    if (currentMouseOverOffset >= selectionAnchor)
                     {
+                        SelectionStart = selectionAnchor;
                         SelectionEnd = currentMouseOverOffset + BytesPerColumn;
                     }
                     else
                     {
+                        SelectionStart = selectionAnchor + BytesPerColumn;
                         SelectionEnd = currentMouseOverOffset;
                     }
 
