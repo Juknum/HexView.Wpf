@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <Authors>Filip Jeremic</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
