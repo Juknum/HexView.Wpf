@@ -28,5 +28,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
       - name: Verify Formatting
         run: dotnet format HexView.Wpf.slnx --verify-no-changes --no-restore
