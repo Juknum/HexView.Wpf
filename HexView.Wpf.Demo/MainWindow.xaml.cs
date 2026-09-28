@@ -1,18 +1,17 @@
-namespace HexViewDemo
-{
-    using Wpf.Ui.Controls;
+namespace HexViewDemo;
 
+using Wpf.Ui.Controls;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml.
+/// </summary>
+public partial class MainWindow : FluentWindow
+{
     /// <summary>
-    /// Interaction logic for MainWindow.xaml.
+    /// Initializes a new instance of the <see cref="MainWindow"/> class.
     /// </summary>
-    public partial class MainWindow : FluentWindow
+    public MainWindow()
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
-        /// </summary>
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

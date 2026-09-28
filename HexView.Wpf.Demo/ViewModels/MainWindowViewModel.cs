@@ -1,63 +1,59 @@
-namespace HexViewDemo.ViewModels
+namespace HexViewDemo.ViewModels;
+
+using System;
+using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Wpf.Ui.Appearance;
+
+/// <summary>
+/// ViewModel for the MainWindow of HexViewer Demo.
+/// </summary>
+public partial class MainWindowViewModel : ObservableObject
 {
-    using System;
-    using System.IO;
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-    using Wpf.Ui.Appearance;
+    [ObservableProperty]
+    private BinaryReader reader;
+
+    [ObservableProperty]
+    private ApplicationTheme currentTheme = ApplicationTheme.Light;
 
     /// <summary>
-    /// ViewModel for the MainWindow of HexViewer Demo.
+    /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
     /// </summary>
-    public partial class MainWindowViewModel : ObservableObject
+    public MainWindowViewModel()
     {
-        [ObservableProperty]
-        private BinaryReader reader;
+        // 10 MB of random data
+        var bytes = new byte[10 * 1024 * 1024];
+        Random.Shared.NextBytes(bytes);
 
-        [ObservableProperty]
-        private ApplicationTheme currentTheme = ApplicationTheme.Light;
+        Reader = new BinaryReader(new MemoryStream(bytes));
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
-        /// </summary>
-        public MainWindowViewModel()
+    [RelayCommand]
+    private void OpenFile()
+    {
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog();
+
+        if (openFileDialog.ShowDialog() == true)
         {
-            // Generate random data so we display something right out of the box without forcing the user to open a file
-            var rand = new Random();
-
-            // 10 MB of random data
-            var bytes = new byte[10 * 1024 * 1024];
-            rand.NextBytes(bytes);
-
-            Reader = new BinaryReader(new MemoryStream(bytes));
+            var file = File.Open(openFileDialog.FileName, FileMode.Open);
+            Reader = new BinaryReader(file);
         }
+    }
 
-        [RelayCommand]
-        private void OpenFile()
+    [RelayCommand]
+    private void SetTheme(string theme)
+    {
+        if (Enum.TryParse<ApplicationTheme>(theme, true, out var appTheme))
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog();
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                var file = File.Open(openFileDialog.FileName, FileMode.Open);
-                Reader = new BinaryReader(file);
-            }
+            CurrentTheme = appTheme;
+            ApplicationThemeManager.Apply(appTheme);
         }
+    }
 
-        [RelayCommand]
-        private void SetTheme(string theme)
-        {
-            if (Enum.TryParse<ApplicationTheme>(theme, true, out var appTheme))
-            {
-                CurrentTheme = appTheme;
-                ApplicationThemeManager.Apply(appTheme);
-            }
-        }
-
-        [RelayCommand]
-        private void Exit()
-        {
-            System.Windows.Application.Current.MainWindow?.Close();
-        }
+    [RelayCommand]
+    private void Exit()
+    {
+        System.Windows.Application.Current.MainWindow?.Close();
     }
 }
