@@ -1055,8 +1055,16 @@ namespace HexView.Wpf
 
                 using (drawingContext = drawingVisual.RenderOpen())
                 {
+                    int rowsToRender = MaxVisibleRows;
+                    if (DataSource != null && BytesPerRow > 0)
+                    {
+                        long remainingBytes = Math.Max(0, DataSource.BaseStream.Length - Offset);
+                        long remainingRows = (remainingBytes + BytesPerRow - 1) / BytesPerRow;
+                        rowsToRender = (int)Math.Min(MaxVisibleRows, remainingRows);
+                    }
+
                     // Add a small padding of 1 pixel to not clip the selection box on the last row
-                    var clipRect = new Rect(0, 0, canvas.ActualWidth, (MaxVisibleRows * cachedFormattedChar.Height) + 1.0);
+                    var clipRect = new Rect(0, 0, canvas.ActualWidth, (rowsToRender * cachedFormattedChar.Height) + 1.0);
 
                     // Clip the drawing to the bounds of the number of rows we can display to prevent the selection
                     // box from being drawn where there is no text. This can happen if the control size is changed
@@ -1154,7 +1162,7 @@ namespace HexView.Wpf
 
                     EnsureFontCache();
 
-                    for (var row = 0; row < MaxVisibleRows; ++row)
+                    for (var row = 0; row < rowsToRender; ++row)
                     {
                         if (ShowAddress)
                         {
@@ -1840,13 +1848,12 @@ namespace HexView.Wpf
 
         private void OnVerticalScrollBarScroll(object sender, ScrollEventArgs e)
         {
-            long valueDelta = (long)(e.NewValue - lastVerticalScrollValue);
+            long targetRow = (long)Math.Round(e.NewValue);
+            long newOffset = Math.Max(0, targetRow * BytesPerRow);
 
-            long newOffset = Offset + (valueDelta * BytesPerRow);
-
-            if (newOffset < 0)
+            if (DataSource != null)
             {
-                newOffset = 0;
+                newOffset = Math.Min(newOffset, DataSource.BaseStream.Length);
             }
 
             Offset = newOffset;
@@ -2127,7 +2134,15 @@ namespace HexView.Wpf
                 point2.X = (CalculateAddressColumnCharWidth() + CharsBetweenSections) * cachedFormattedChar.Width;
             }
 
-            point2.Y = Math.Min(cachedFormattedChar.Height * MaxVisibleRows, canvas.ActualHeight);
+            int visibleRows = MaxVisibleRows;
+            if (DataSource != null && BytesPerRow > 0)
+            {
+                long remainingBytes = Math.Max(0, DataSource.BaseStream.Length - Offset);
+                long remainingRows = (remainingBytes + BytesPerRow - 1) / BytesPerRow;
+                visibleRows = (int)Math.Min(MaxVisibleRows, remainingRows);
+            }
+
+            point2.Y = Math.Min(cachedFormattedChar.Height * visibleRows, canvas.ActualHeight);
 
             return point2;
         }
@@ -2479,9 +2494,10 @@ namespace HexView.Wpf
             {
                 long q = DataSource.BaseStream.Length / BytesPerRow;
                 long r = DataSource.BaseStream.Length % BytesPerRow;
+                long totalRows = q + (r > 0 ? 1 : 0);
 
-                // Each scroll value represents a single drawn row
-                verticalScrollBar.Maximum = q + (r > 0 ? 1 : 0);
+                verticalScrollBar.ViewportSize = MaxVisibleRows;
+                verticalScrollBar.Maximum = Math.Max(0, totalRows - MaxVisibleRows);
 
                 // Adjust the scroll value based on the current offset
                 verticalScrollBar.Value = Offset / BytesPerRow;
@@ -2493,9 +2509,11 @@ namespace HexView.Wpf
                     ++verticalScrollBar.Value;
                 }
             }
-            else
+            else if (verticalScrollBar != null)
             {
+                verticalScrollBar.ViewportSize = 0;
                 verticalScrollBar.Maximum = 0;
+                verticalScrollBar.Value = 0;
             }
         }
 

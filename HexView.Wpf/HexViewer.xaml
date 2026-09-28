@@ -22,14 +22,10 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
         <Canvas x:Name="PART_Canvas"
                 Background="{Binding ElementName=root, Path=Background}"
                 Tag="{Binding ElementName=root}"
+                ClipToBounds="True"
                 Margin="5">
             <Canvas.ContextMenu>
                 <ContextMenu DataContext="{Binding Path=PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
