@@ -1,18 +1,17 @@
-﻿namespace HexView.Wpf
+namespace Juknum.HexView.Wpf;
+
+/// <summary>
+/// Enumerates the data column types.
+/// </summary>
+public enum DataType
 {
     /// <summary>
-    /// Enumerates how the data (bytes read from the buffer) is to be interpreted when displayed.
+    /// Inteprets the data as an integer.
     /// </summary>
-    public enum DataType
-    {
-        /// <summary>
-        /// Display the data as floating point values.
-        /// </summary>
-        FloatingPoint,
+    Integer,
 
-        /// <summary>
-        /// Display the data as integral (integer) values.
-        /// </summary>
-        Integer,
-    }
+    /// <summary>
+    /// Interprets the data as a floating point number.
+    /// </summary>
+    FloatingPoint,
 }

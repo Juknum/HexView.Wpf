@@ -1,18 +1,17 @@
-﻿namespace HexView.Wpf
+namespace Juknum.HexView.Wpf;
+
+/// <summary>
+/// Enumerates the data column signedness options.
+/// </summary>
+public enum DataSignedness
 {
     /// <summary>
-    /// Enumerates the signedness of the data to display.
+    /// Interpret the data as signed.
     /// </summary>
-    public enum DataSignedness
-    {
-        /// <summary>
-        /// Display the data as signed values.
-        /// </summary>
-        Signed,
+    Signed,
 
-        /// <summary>
-        /// Display the data as unsigned values.
-        /// </summary>
-        Unsigned,
-    }
+    /// <summary>
+    /// Interpret the data as unsigned.
+    /// </summary>
+    Unsigned,
 }

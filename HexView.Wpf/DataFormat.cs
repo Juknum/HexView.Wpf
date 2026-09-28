@@ -1,18 +1,17 @@
-﻿namespace HexView.Wpf
+namespace Juknum.HexView.Wpf;
+
+/// <summary>
+/// Enumerates the data column formatting options.
+/// </summary>
+public enum DataFormat
 {
     /// <summary>
-    /// Enumerates the format to display integral data in.
+    /// Formats the data column as decimal integer.
     /// </summary>
-    public enum DataFormat
-    {
-        /// <summary>
-        /// Display the data in decimal format.
-        /// </summary>
-        Decimal,
+    Decimal,
 
-        /// <summary>
-        /// Display the data in hexadecimal format.
-        /// </summary>
-        Hexadecimal,
-    }
+    /// <summary>
+    /// Formats the data column as hexadecimal integer.
+    /// </summary>
+    Hexadecimal,
 }

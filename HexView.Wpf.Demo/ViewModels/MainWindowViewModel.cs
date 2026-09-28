@@ -1,4 +1,4 @@
-namespace HexViewDemo.ViewModels;
+namespace Juknum.HexViewDemo.ViewModels;
 
 using System;
 using System.IO;

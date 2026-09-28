@@ -1,4 +1,4 @@
-namespace HexViewDemo;
+namespace Juknum.HexViewDemo;
 
 using System.Windows;
 

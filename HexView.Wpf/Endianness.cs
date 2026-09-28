@@ -1,18 +1,17 @@
-namespace HexView.Wpf
+namespace Juknum.HexView.Wpf;
+
+/// <summary>
+/// Enumerates the endianness options.
+/// </summary>
+public enum Endianness
 {
     /// <summary>
-    /// Enumerates the endianness options.
+    /// Big-endian byte order.
     /// </summary>
-    public enum Endianness
-    {
-        /// <summary>
-        /// Big-endian format (most significant byte first).
-        /// </summary>
-        BigEndian,
+    BigEndian,
 
-        /// <summary>
-        /// Little-endian format (least significant byte first).
-        /// </summary>
-        LittleEndian,
-    }
+    /// <summary>
+    /// Little-endian byte order.
+    /// </summary>
+    LittleEndian,
 }
