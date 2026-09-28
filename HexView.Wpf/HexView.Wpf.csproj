@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <Authors>Filip Jeremic</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>A zero-dependency WPF control for displaying binary data in a traditional hex view.</Description>
     <PackageProjectUrl>https://github.com/fjeremic/HexView.Wpf</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fjeremic/HexView.Wpf</RepositoryUrl>
@@ -18,6 +19,10 @@
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
