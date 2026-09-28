@@ -6,14 +6,19 @@
     <Authors>Filip Jeremic</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>A zero-dependency WPF control for displaying binary data in a traditional hex view.</Description>
+    <Description>A WPF control for displaying binary data in a traditional hex view with WPF-UI support.</Description>
     <PackageProjectUrl>https://github.com/fjeremic/HexView.Wpf</PackageProjectUrl>
     <RepositoryUrl>https://github.com/fjeremic/HexView.Wpf</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
-    <PackageTags>WPF;HexView;HexViewer</PackageTags>
+    <PackageTags>WPF;HexView;HexViewer;WPF-UI</PackageTags>
     <Version>0.2.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WPF-UI" Version="4.0.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\LICENSE">

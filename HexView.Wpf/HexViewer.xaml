@@ -6,8 +6,8 @@
              xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              x:Name="root"
-             Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
-             Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+             Background="{DynamicResource ApplicationBackgroundBrush}"
+             Foreground="{DynamicResource TextFillColorPrimaryBrush}"
              FontFamily="Consolas"
              FontSize="13">
     

@@ -30,7 +30,7 @@ namespace HexView.Wpf
         /// </summary>
         public static readonly DependencyProperty AddressBrushProperty =
             DependencyProperty.Register(nameof(AddressBrush), typeof(Brush), typeof(HexViewer),
-                new FrameworkPropertyMetadata(SystemColors.HotTrackBrush, OnPropertyChangedInvalidateVisual));
+                new FrameworkPropertyMetadata(null, OnPropertyChangedInvalidateVisual));
 
         /// <summary>
         /// Defines the width of the addresses displayed in the address section of the control.
@@ -44,7 +44,7 @@ namespace HexView.Wpf
         /// </summary>
         public static readonly DependencyProperty AlternatingDataColumnTextBrushProperty =
             DependencyProperty.Register(nameof(AlternatingDataColumnTextBrush), typeof(Brush), typeof(HexViewer),
-                new FrameworkPropertyMetadata(SystemColors.ActiveCaptionBrush, OnPropertyChangedInvalidateVisual));
+                new FrameworkPropertyMetadata(null, OnPropertyChangedInvalidateVisual));
 
         /// <summary>
         /// Defines the number of columns to display.
@@ -131,14 +131,14 @@ namespace HexView.Wpf
         /// </summary>
         public static readonly DependencyProperty SelectionBrushProperty =
             DependencyProperty.Register(nameof(SelectionBrush), typeof(Brush), typeof(HexViewer),
-                new FrameworkPropertyMetadata(SystemColors.HighlightBrush, OnPropertyChangedInvalidateVisual));
+                new FrameworkPropertyMetadata(null, OnPropertyChangedInvalidateVisual));
 
         /// <summary>
         /// Defines the brush used for selected text.
         /// </summary>
         public static readonly DependencyProperty SelectionTextBrushProperty =
             DependencyProperty.Register(nameof(SelectionTextBrush), typeof(Brush), typeof(HexViewer),
-                new FrameworkPropertyMetadata(SystemColors.HighlightTextBrush, OnPropertyChangedInvalidateVisual));
+                new FrameworkPropertyMetadata(null, OnPropertyChangedInvalidateVisual));
 
         /// <summary>
         /// Defines the offset from <see cref="DataSourceProperty"/> of where the user selection has ended.
@@ -242,7 +242,31 @@ namespace HexView.Wpf
                 verticalScrollBar.SmallChange = 1;
                 verticalScrollBar.LargeChange = MaxVisibleRows;
             }
+
+            Loaded += (s, e) =>
+            {
+                global::Wpf.Ui.Appearance.ApplicationThemeManager.Changed += OnApplicationThemeChanged;
+                InvalidateVisual();
+            };
+
+            Unloaded += (s, e) =>
+            {
+                global::Wpf.Ui.Appearance.ApplicationThemeManager.Changed -= OnApplicationThemeChanged;
+            };
         }
+
+        private void OnApplicationThemeChanged(global::Wpf.Ui.Appearance.ApplicationTheme currentApplicationTheme, Color systemAccent)
+        {
+            Dispatcher.InvokeAsync(InvalidateVisual);
+        }
+
+        private Brush GetEffectiveAddressBrush() => AddressBrush ?? (TryFindResource("AccentTextFillColorPrimaryBrush") as Brush) ?? (TryFindResource("TextFillColorSecondaryBrush") as Brush) ?? Foreground;
+
+        private Brush GetEffectiveAlternatingBrush() => AlternatingDataColumnTextBrush ?? (TryFindResource("TextFillColorSecondaryBrush") as Brush) ?? Foreground;
+
+        private Brush GetEffectiveSelectionBrush() => SelectionBrush ?? (TryFindResource("AccentFillColorDefaultBrush") as Brush) ?? SystemColors.HighlightBrush;
+
+        private Brush GetEffectiveSelectionTextBrush() => SelectionTextBrush ?? (TryFindResource("TextOnAccentFillColorPrimaryBrush") as Brush) ?? SystemColors.HighlightTextBrush;
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
@@ -947,6 +971,11 @@ namespace HexView.Wpf
                     // while the selection remains active.
                     drawingContext.PushClip(new RectangleGeometry(clipRect));
 
+                    var effectiveAddressBrush = GetEffectiveAddressBrush();
+                    var effectiveAlternatingBrush = GetEffectiveAlternatingBrush();
+                    var effectiveSelectionBrush = GetEffectiveSelectionBrush();
+                    var effectiveSelectionTextBrush = GetEffectiveSelectionTextBrush();
+
                     var pen = new Pen(Foreground, 1.0);
 
                     double halfPenThickness = pen.Thickness / 2;
@@ -997,7 +1026,7 @@ namespace HexView.Wpf
                                 selectionPoint1.X -= CharsBetweenDataColumns * cachedFormattedChar.Width;
                             }
 
-                            DrawSelectionGeometry(drawingContext, SelectionBrush, pen, selectionPoint0, selectionPoint1, SelectionArea.Data);
+                            DrawSelectionGeometry(drawingContext, effectiveSelectionBrush, pen, selectionPoint0, selectionPoint1, SelectionArea.Data);
                         }
                     }
 
@@ -1025,7 +1054,7 @@ namespace HexView.Wpf
                                 selectionPoint1.Y -= cachedFormattedChar.Height;
                             }
 
-                            DrawSelectionGeometry(drawingContext, SelectionBrush, pen, selectionPoint0, selectionPoint1, SelectionArea.Text);
+                            DrawSelectionGeometry(drawingContext, effectiveSelectionBrush, pen, selectionPoint0, selectionPoint1, SelectionArea.Text);
                         }
                     }
 
@@ -1040,7 +1069,7 @@ namespace HexView.Wpf
                             if (DataSource.BaseStream.Position + BytesPerColumn <= DataSource.BaseStream.Length)
                             {
                                 var textToFormat = GetFormattedAddressText(Address + (ulong)DataSource.BaseStream.Position);
-                                var formattedText = new FormattedText(textToFormat, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, AddressBrush, 1.0);
+                                var formattedText = new FormattedText(textToFormat, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, effectiveAddressBrush, 1.0);
                                 drawingContext.DrawText(formattedText, origin);
 
                                 origin.X += (CalculateAddressColumnCharWidth() + CharsBetweenSections) * cachedFormattedChar.Width;
@@ -1100,7 +1129,7 @@ namespace HexView.Wpf
                             var evenFormattedText = new FormattedText(evenColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, Foreground, 1.0);
                             drawingContext.DrawText(evenFormattedText, origin);
 
-                            var oddFormattedText = new FormattedText(oddColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, AlternatingDataColumnTextBrush, 1.0);
+                            var oddFormattedText = new FormattedText(oddColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, effectiveAlternatingBrush, 1.0);
                             drawingContext.DrawText(oddFormattedText, origin);
 
                             origin.X += evenFormattedText.WidthIncludingTrailingWhitespace;
@@ -1133,7 +1162,7 @@ namespace HexView.Wpf
                                     ++column;
                                 }
 
-                                evenFormattedText = new FormattedText(evenColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, SelectionTextBrush, 1.0);
+                                evenFormattedText = new FormattedText(evenColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, effectiveSelectionTextBrush, 1.0);
                                 drawingContext.DrawText(evenFormattedText, origin);
 
                                 origin.X += evenFormattedText.WidthIncludingTrailingWhitespace;
@@ -1177,7 +1206,7 @@ namespace HexView.Wpf
                                     evenFormattedText = new FormattedText(evenColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, Foreground, 1.0);
                                     drawingContext.DrawText(evenFormattedText, origin);
 
-                                    oddFormattedText = new FormattedText(oddColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, AlternatingDataColumnTextBrush, 1.0);
+                                    oddFormattedText = new FormattedText(oddColumnBuilder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, effectiveAlternatingBrush, 1.0);
                                     drawingContext.DrawText(oddFormattedText, origin);
 
                                     origin.X += evenFormattedText.WidthIncludingTrailingWhitespace;
@@ -1245,7 +1274,7 @@ namespace HexView.Wpf
                                     ++column;
                                 }
 
-                                formattedText = new FormattedText(builder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, SelectionTextBrush, 1.0);
+                                formattedText = new FormattedText(builder.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight, cachedTypeface, FontSize, effectiveSelectionTextBrush, 1.0);
                                 drawingContext.DrawText(formattedText, origin);
 
                                 if (column < Columns)

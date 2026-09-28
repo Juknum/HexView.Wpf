@@ -3,14 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:hv="clr-namespace:HexView.Wpf;assembly=HexView.Wpf"
+        xmlns:vm="clr-namespace:HexViewDemo.ViewModels"
         Title="HexViewer Demo"
         Height="550"
         Width="900"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="Mica"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    
+        WindowBackdropType="Mica">
+    <ui:FluentWindow.DataContext>
+        <vm:MainWindowViewModel/>
+    </ui:FluentWindow.DataContext>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -25,13 +28,13 @@
 
         <Menu Grid.Row="1" Margin="4,0,4,4">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Click="MenuItem_Open"/>
+                <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}"/>
                 <Separator />
-                <MenuItem Header="_Exit" Click="MenuItem_Exit"/>
+                <MenuItem Header="_Exit" Command="{Binding ExitCommand}"/>
             </MenuItem>
             <MenuItem Header="_Theme">
-                <MenuItem Header="Light" Click="MenuItem_ThemeLight"/>
-                <MenuItem Header="Dark" Click="MenuItem_ThemeDark"/>
+                <MenuItem Header="Light" Command="{Binding SetThemeCommand}" CommandParameter="Light"/>
+                <MenuItem Header="Dark" Command="{Binding SetThemeCommand}" CommandParameter="Dark"/>
             </MenuItem>
         </Menu>
 
