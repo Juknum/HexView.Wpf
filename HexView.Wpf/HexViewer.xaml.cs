@@ -578,6 +578,50 @@ namespace HexView.Wpf
 
 
         /// <summary>
+        /// Selects a range of bytes in the data source.
+        /// </summary>
+        /// <param name="offset">
+        /// The starting byte offset of the selection.
+        /// </param>
+        /// <param name="length">
+        /// The number of bytes to select.
+        /// </param>
+        public void Select(long offset, long length)
+        {
+            if (DataSource == null)
+            {
+                return;
+            }
+
+            long streamLength = DataSource.BaseStream.Length;
+            SelectionStart = offset.Clamp(0, streamLength);
+            SelectionEnd = (offset + length).Clamp(0, streamLength);
+        }
+
+        /// <summary>
+        /// Selects all bytes in the data source.
+        /// </summary>
+        public void SelectAll()
+        {
+            if (DataSource == null)
+            {
+                return;
+            }
+
+            SelectionStart = 0;
+            SelectionEnd = DataSource.BaseStream.Length;
+        }
+
+        /// <summary>
+        /// Clears the current selection.
+        /// </summary>
+        public void ClearSelection()
+        {
+            SelectionStart = 0;
+            SelectionEnd = 0;
+        }
+
+        /// <summary>
         /// Scrolls the contents of the control to the specified offset.
         /// </summary>
         ///
@@ -614,8 +658,7 @@ namespace HexView.Wpf
                         {
                             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
                             {
-                                SelectionStart = 0;
-                                SelectionEnd = DataSource.BaseStream.Length;
+                                SelectAll();
 
                                 e.Handled = true;
                             }
