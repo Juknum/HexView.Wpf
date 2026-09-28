@@ -741,12 +741,17 @@ namespace HexView.Wpf
                             }
                             else
                             {
-                                // TODO: Because of the way we represent selection there is no way to distinguish at the
-                                // moment whether the selection ends at the start of the current line or the end of the
-                                // previous line. As such, when the Shift+End hotkey is used twice consecutively a whole
-                                // new line above the current selection will be selected. This is undesirable behavior
-                                // that deviates from the canonical semantics of Shift+End.
-                                SelectionEnd -= (SelectionEnd - 1 - Offset).Mod(BytesPerRow) + 1;
+                                long targetRowStart;
+                                if (SelectionEnd < SelectionStart)
+                                {
+                                    targetRowStart = (SelectionEnd / BytesPerRow) * BytesPerRow;
+                                }
+                                else
+                                {
+                                    targetRowStart = (Math.Max(0, SelectionEnd - 1) / BytesPerRow) * BytesPerRow;
+                                }
+
+                                SelectionEnd = Math.Max(0, targetRowStart);
 
                                 if (!Keyboard.IsKeyDown(Key.LeftShift) && !Keyboard.IsKeyDown(Key.RightShift))
                                 {
