@@ -2,10 +2,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:HexView.Wpf"
-    xmlns:binarytoolselfio="clr-namespace:BinaryTools.Elf.Io;assembly=BinaryTools.Elf"
-    xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime.Extensions"
+    xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
     xmlns:converters="clr-namespace:HexView.Wpf.Converters"
-    xmlns:system="clr-namespace:System;assembly=System.Memory">
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
     
     <Style TargetType="{x:Type local:HexViewer}">
         <Setter Property="Background"
@@ -351,9 +350,9 @@
                                         <MenuItem.IsChecked>
                                             <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Endianness" Converter="{StaticResource EqualityConverter}">
                                                 <Binding.ConverterParameter>
-                                                    <binarytoolselfio:Endianness>
+                                                    <local:Endianness>
                                                         BigEndian
-                                                    </binarytoolselfio:Endianness>
+                                                    </local:Endianness>
                                                 </Binding.ConverterParameter>
                                             </Binding>
                                         </MenuItem.IsChecked>
@@ -363,9 +362,9 @@
                                         <MenuItem.IsChecked>
                                             <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Endianness" Converter="{StaticResource EqualityConverter}">
                                                 <Binding.ConverterParameter>
-                                                    <binarytoolselfio:Endianness>
+                                                    <local:Endianness>
                                                         LittleEndian
-                                                    </binarytoolselfio:Endianness>
+                                                    </local:Endianness>
                                                 </Binding.ConverterParameter>
                                             </Binding>
                                         </MenuItem.IsChecked>

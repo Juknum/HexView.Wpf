@@ -1,4 +1,4 @@
-﻿namespace HexView.Wpf
+namespace HexView.Wpf
 {
     using System;
     using System.ComponentModel;
@@ -12,7 +12,6 @@
     using System.Windows.Input;
     using System.Windows.Media;
 
-    using BinaryTools.Elf.Io;
 
     /// <summary>
     /// Represents a control designed to display a classical hexadecimal viewer.
@@ -1700,7 +1699,7 @@
                         case 8:
                         {
                             var bytes = BitConverter.GetBytes(EndianBitConverter.Convert(DataSource.ReadUInt64(), Endianness));
-                            var value = BitConverter.ToSingle(bytes, 0);
+                            var value = BitConverter.ToDouble(bytes, 0);
                             result = $"{value:E16}".PadLeft(24);
                             break;
                         }

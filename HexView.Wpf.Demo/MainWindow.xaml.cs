@@ -1,15 +1,17 @@
-﻿namespace HexView.Wpf.Demo
+namespace HexViewDemo
 {
     using System;
     using System.ComponentModel;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Windows;
+    using Wpf.Ui.Appearance;
+    using Wpf.Ui.Controls;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml.
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : FluentWindow, INotifyPropertyChanged
     {
         private BinaryReader binaryReader;
 
@@ -62,6 +64,16 @@
         private void MenuItem_Exit(object sender, RoutedEventArgs e)
         {
             Application.Current.MainWindow.Close();
+        }
+
+        private void MenuItem_ThemeLight(object sender, RoutedEventArgs e)
+        {
+            ApplicationThemeManager.Apply(ApplicationTheme.Light);
+        }
+
+        private void MenuItem_ThemeDark(object sender, RoutedEventArgs e)
+        {
+            ApplicationThemeManager.Apply(ApplicationTheme.Dark);
         }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)
