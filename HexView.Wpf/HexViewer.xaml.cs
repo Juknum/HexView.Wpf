@@ -1,4 +1,4 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView;
 
 using System;
 using System.ComponentModel;
@@ -11,6 +11,8 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
+using Juknum.HexView.Enums;
+using DataFormat = Juknum.HexView.Enums.DataFormat;
 
 /// <summary>
 /// Represents a control designed to display a classical hexadecimal viewer.

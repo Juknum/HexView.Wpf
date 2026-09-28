@@ -1,6 +1,6 @@
-namespace Juknum.HexViewDemo;
+namespace Juknum.HexView.Demo;
 
-using Wpf.Ui.Controls;
+using global::Wpf.Ui.Controls;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml.

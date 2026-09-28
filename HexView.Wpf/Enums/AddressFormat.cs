@@ -1,4 +1,4 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView.Enums;
 
 /// <summary>
 /// Enumerates the address column formatting options.

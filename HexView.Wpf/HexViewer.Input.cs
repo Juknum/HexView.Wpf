@@ -1,9 +1,10 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView;
 
 using System;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Juknum.HexView.Common;
 
 /// <summary>
 /// Input handling, mouse/keyboard navigation, and coordinate conversion for <see cref="HexViewer"/>.

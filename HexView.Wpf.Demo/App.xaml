@@ -1,8 +1,8 @@
-<Application x:Class="Juknum.HexViewDemo.App"
+<Application x:Class="Juknum.HexView.Demo.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:local="clr-namespace:Juknum.HexViewDemo"
+             xmlns:local="clr-namespace:Juknum.HexView.Demo"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>

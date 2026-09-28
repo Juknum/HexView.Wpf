@@ -1,4 +1,4 @@
-namespace Juknum.HexView.Wpf.Converters;
+namespace Juknum.HexView.Common.Converters;
 
 using System;
 using System.Globalization;

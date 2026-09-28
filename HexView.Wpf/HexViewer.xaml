@@ -1,8 +1,9 @@
-<UserControl x:Class="Juknum.HexView.Wpf.HexViewer"
+<UserControl x:Class="Juknum.HexView.HexViewer"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Juknum.HexView.Wpf"
-             xmlns:converters="clr-namespace:Juknum.HexView.Wpf.Converters"
+             xmlns:local="clr-namespace:Juknum.HexView"
+             xmlns:enums="clr-namespace:Juknum.HexView.Enums"
+             xmlns:converters="clr-namespace:Juknum.HexView.Common.Converters"
              xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              x:Name="root"
@@ -56,7 +57,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>Integer</local:DataType>
+                                                <enums:DataType>Integer</enums:DataType>
                                                 <system:Int32>1</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -79,7 +80,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>Integer</local:DataType>
+                                                <enums:DataType>Integer</enums:DataType>
                                                 <system:Int32>2</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -102,7 +103,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>Integer</local:DataType>
+                                                <enums:DataType>Integer</enums:DataType>
                                                 <system:Int32>4</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -125,7 +126,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>Integer</local:DataType>
+                                                <enums:DataType>Integer</enums:DataType>
                                                 <system:Int32>8</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -150,7 +151,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>FloatingPoint</local:DataType>
+                                                <enums:DataType>FloatingPoint</enums:DataType>
                                                 <system:Int32>4</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -173,7 +174,7 @@
                                         <MultiBinding.ConverterParameter>
                                             <collections:ArrayList>
                                                 <system:Boolean>true</system:Boolean>
-                                                <local:DataType>FloatingPoint</local:DataType>
+                                                <enums:DataType>FloatingPoint</enums:DataType>
                                                 <system:Int32>8</system:Int32>
                                             </collections:ArrayList>
                                         </MultiBinding.ConverterParameter>
@@ -188,7 +189,7 @@
 
                     <Separator/>
 
-                    <MenuItem Header="Hexadecimal" Command="{Binding SetDataFormatCommand}" CommandParameter="{x:Static local:DataFormat.Hexadecimal}">
+                    <MenuItem Header="Hexadecimal" Command="{Binding SetDataFormatCommand}" CommandParameter="{x:Static enums:DataFormat.Hexadecimal}">
                         <MenuItem.Icon>
                             <Ellipse Width="6" Height="6"
                                      Fill="{DynamicResource TextFillColorPrimaryBrush}"
@@ -196,7 +197,7 @@
                                 <Ellipse.Visibility>
                                     <Binding Path="DataFormat" Converter="{StaticResource EqualityConverter}">
                                         <Binding.ConverterParameter>
-                                            <local:DataFormat>Hexadecimal</local:DataFormat>
+                                            <enums:DataFormat>Hexadecimal</enums:DataFormat>
                                         </Binding.ConverterParameter>
                                     </Binding>
                                 </Ellipse.Visibility>
@@ -207,7 +208,7 @@
                                 <MultiBinding.ConverterParameter>
                                     <collections:ArrayList>
                                         <system:Boolean>true</system:Boolean>
-                                        <local:DataType>Integer</local:DataType>
+                                        <enums:DataType>Integer</enums:DataType>
                                     </collections:ArrayList>
                                 </MultiBinding.ConverterParameter>
                                 <Binding Path="ShowData"/>
@@ -216,7 +217,7 @@
                         </MenuItem.IsEnabled>
                     </MenuItem>
 
-                    <MenuItem Header="Decimal" Command="{Binding SetDataFormatCommand}" CommandParameter="{x:Static local:DataFormat.Decimal}">
+                    <MenuItem Header="Decimal" Command="{Binding SetDataFormatCommand}" CommandParameter="{x:Static enums:DataFormat.Decimal}">
                         <MenuItem.Icon>
                             <Ellipse Width="6" Height="6"
                                      Fill="{DynamicResource TextFillColorPrimaryBrush}"
@@ -224,7 +225,7 @@
                                 <Ellipse.Visibility>
                                     <Binding Path="DataFormat" Converter="{StaticResource EqualityConverter}">
                                         <Binding.ConverterParameter>
-                                            <local:DataFormat>Decimal</local:DataFormat>
+                                            <enums:DataFormat>Decimal</enums:DataFormat>
                                         </Binding.ConverterParameter>
                                     </Binding>
                                 </Ellipse.Visibility>
@@ -235,7 +236,7 @@
                                 <MultiBinding.ConverterParameter>
                                     <collections:ArrayList>
                                         <system:Boolean>true</system:Boolean>
-                                        <local:DataType>Integer</local:DataType>
+                                        <enums:DataType>Integer</enums:DataType>
                                     </collections:ArrayList>
                                 </MultiBinding.ConverterParameter>
                                 <Binding Path="ShowData"/>

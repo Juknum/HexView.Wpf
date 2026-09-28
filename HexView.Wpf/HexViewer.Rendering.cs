@@ -1,10 +1,13 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView;
 
 using System;
 using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
+using Juknum.HexView.Common;
+using Juknum.HexView.Enums;
+using DataFormat = Juknum.HexView.Enums.DataFormat;
 
 /// <summary>
 /// Visual rendering, layout calculations, and text formatting for <see cref="HexViewer"/>.

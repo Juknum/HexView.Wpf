@@ -1,10 +1,12 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView;
 
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
+using Juknum.HexView.Enums;
+using DataFormat = Juknum.HexView.Enums.DataFormat;
 
 /// <summary>
 /// Dependency properties and CLR property wrappers for <see cref="HexViewer"/>.

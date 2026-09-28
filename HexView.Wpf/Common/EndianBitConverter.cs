@@ -1,7 +1,8 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView.Common;
 
 using System;
 using System.Buffers.Binary;
+using Juknum.HexView.Enums;
 
 /// <summary>
 /// A utility class for converting values between endian formats.

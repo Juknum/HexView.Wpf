@@ -1,4 +1,4 @@
-namespace Juknum.HexView.Wpf;
+namespace Juknum.HexView.Common;
 
 using System;
 using System.Numerics;

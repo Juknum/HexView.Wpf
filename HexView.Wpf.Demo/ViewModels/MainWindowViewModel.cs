@@ -1,21 +1,23 @@
-namespace Juknum.HexViewDemo.ViewModels;
+namespace Juknum.HexView.Demo.ViewModels;
 
 using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Wpf.Ui.Appearance;
+using global::Wpf.Ui.Appearance;
 
 /// <summary>
 /// ViewModel for the MainWindow of HexViewer Demo.
 /// </summary>
-public partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     [ObservableProperty]
     private BinaryReader reader;
 
     [ObservableProperty]
     private ApplicationTheme currentTheme = ApplicationTheme.Light;
+
+    private bool disposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
@@ -36,8 +38,10 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (openFileDialog.ShowDialog() == true)
         {
-            var file = File.Open(openFileDialog.FileName, FileMode.Open);
+            var file = File.Open(openFileDialog.FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var oldReader = Reader;
             Reader = new BinaryReader(file);
+            oldReader?.Dispose();
         }
     }
 
@@ -55,5 +59,16 @@ public partial class MainWindowViewModel : ObservableObject
     private void Exit()
     {
         System.Windows.Application.Current.MainWindow?.Close();
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        if (!disposed)
+        {
+            Reader?.Dispose();
+            disposed = true;
+            GC.SuppressFinalize(this);
+        }
     }
 }
