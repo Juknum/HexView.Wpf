@@ -11,6 +11,7 @@ namespace HexView.Wpf
     using System.Windows.Controls.Primitives;
     using System.Windows.Input;
     using System.Windows.Media;
+    using CommunityToolkit.Mvvm.Input;
 
 
     /// <summary>
@@ -572,6 +573,89 @@ namespace HexView.Wpf
             get => (TextFormat)GetValue(TextFormatProperty);
 
             set => SetValue(TextFormatProperty, value);
+        }
+
+        /// <summary>
+        /// Gets the header text for the toggle text command.
+        /// </summary>
+        public string ToggleTextHeader => ShowText ? "Hide Text" : "Show Text";
+
+        /// <summary>
+        /// Gets the header text for the toggle signedness command.
+        /// </summary>
+        public string ToggleSignednessHeader => DataSignedness == DataSignedness.Signed ? "Unsigned" : "Signed";
+
+        /// <summary>
+        /// Gets the header text for the toggle endianness command.
+        /// </summary>
+        public string ToggleEndiannessHeader => Endianness == Endianness.BigEndian ? "Little-endian" : "Big-endian";
+
+        /// <summary>
+        /// Gets a value indicating whether the signedness toggle command can execute.
+        /// </summary>
+        public bool CanToggleSignedness => ShowData && DataType == DataType.Integer && DataFormat == DataFormat.Decimal;
+
+        [RelayCommand]
+        private void ToggleText()
+        {
+            ShowText = !ShowText;
+            if (ShowText && TextFormat != TextFormat.Ascii)
+            {
+                TextFormat = TextFormat.Ascii;
+            }
+        }
+
+        [RelayCommand(CanExecute = nameof(CanToggleSignedness))]
+        private void ToggleSignedness()
+        {
+            DataSignedness = DataSignedness == DataSignedness.Signed ? DataSignedness.Unsigned : DataSignedness.Signed;
+        }
+
+        [RelayCommand]
+        private void ToggleEndianness()
+        {
+            Endianness = Endianness == Endianness.BigEndian ? Endianness.LittleEndian : Endianness.BigEndian;
+        }
+
+        [RelayCommand]
+        private void SetNoData()
+        {
+            ShowData = false;
+        }
+
+        [RelayCommand]
+        private void SetIntegerFormat(object parameter)
+        {
+            if (parameter != null && int.TryParse(parameter.ToString(), out int width))
+            {
+                ShowData = true;
+                DataType = DataType.Integer;
+                DataWidth = width;
+            }
+        }
+
+        [RelayCommand]
+        private void SetFloatingPointFormat(object parameter)
+        {
+            if (parameter != null && int.TryParse(parameter.ToString(), out int width))
+            {
+                ShowData = true;
+                DataType = DataType.FloatingPoint;
+                DataWidth = width;
+            }
+        }
+
+        [RelayCommand]
+        private void SetDataFormat(object parameter)
+        {
+            if (parameter is DataFormat format)
+            {
+                DataFormat = format;
+            }
+            else if (parameter != null && Enum.TryParse<DataFormat>(parameter.ToString(), out var parsedFormat))
+            {
+                DataFormat = parsedFormat;
+            }
         }
 
         private double SelectionBoxDataXPadding => cachedFormattedChar.Width / 4;
@@ -1426,6 +1510,12 @@ namespace HexView.Wpf
             var hexViewer = (HexViewer)d;
 
             hexViewer.InvalidateVisual();
+            hexViewer.OnPropertyChanged(e.Property.Name);
+            hexViewer.OnPropertyChanged(nameof(ToggleTextHeader));
+            hexViewer.OnPropertyChanged(nameof(ToggleSignednessHeader));
+            hexViewer.OnPropertyChanged(nameof(ToggleEndiannessHeader));
+            hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
+            hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
         }
 
         private static void OnSelectionEndChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -1588,6 +1678,9 @@ namespace HexView.Wpf
             hexViewer.CoerceValue(DataWidthProperty);
 
             hexViewer.InvalidateVisual();
+            hexViewer.OnPropertyChanged(nameof(DataType));
+            hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
+            hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
         }
 
         private static void OnDataSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -1609,6 +1702,9 @@ namespace HexView.Wpf
             hexViewer.SelectionEnd = 0;
 
             hexViewer.InvalidateVisual();
+            hexViewer.OnPropertyChanged(nameof(DataWidth));
+            hexViewer.OnPropertyChanged(nameof(CanToggleSignedness));
+            hexViewer.ToggleSignednessCommand.NotifyCanExecuteChanged();
         }
 
         private void OnPropertyChanged([CallerMemberName] string name = null)

@@ -1,4 +1,4 @@
-﻿namespace HexView.Wpf.Converters
+namespace HexView.Wpf.Converters
 {
     using System;
     using System.Collections;
@@ -42,9 +42,9 @@
         /// </remarks>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType != typeof(bool))
+            if (targetType != typeof(bool) && targetType != typeof(System.Windows.Visibility))
             {
-                throw new ArgumentException("Argument targetType must be of type 'Boolean'", nameof(targetType));
+                throw new ArgumentException("Argument targetType must be of type 'Boolean' or 'Visibility'", nameof(targetType));
             }
 
             if (parameter.GetType() != typeof(ArrayList))
@@ -59,15 +59,22 @@
                 throw new ArgumentException("Arguments parameter and values must be of equal length");
             }
 
+            bool equals = true;
             for (var i = 0; i < values.Length; ++i)
             {
-                if (!values[i].Equals(parameters[i]))
+                if (values[i] == null || !values[i].Equals(parameters[i]))
                 {
-                    return false;
+                    equals = false;
+                    break;
                 }
             }
 
-            return true;
+            if (targetType == typeof(System.Windows.Visibility))
+            {
+                return equals ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            }
+
+            return equals;
         }
 
         /// <summary>
